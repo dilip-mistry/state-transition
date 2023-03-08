@@ -1,0 +1,57 @@
+<template>
+    <div class="slds-section slds-is-open">
+        <h3 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">1. Select Object & Field</span>
+        </h3>
+        <div aria-hidden="false" class="slds-section__content">
+            <lightning-layout>
+                <lightning-layout-item size="3">
+                    <div class="slds-form-element slds-m-around_x-small">
+                        <label class="slds-form-element__label" for="form-element-object">Object</label>
+                        <div class="slds-form-element__control">
+                            <select class="slds-select" id="form-element-object" onchange={onObjectChange}>
+                                <template for:each={listObjects} for:item="listObjItem">
+                                    <option key={listObjItem.key} value={listObjItem.key}>{listObjItem.value}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </lightning-layout-item>
+
+                <lightning-layout-item size="3">
+                    <div class="slds-form-element slds-m-around_x-small">
+                        <label class="slds-form-element__label" for="form-element-fields">Field</label>
+                        <div class="slds-form-element__control">
+                            <select class="slds-select" id="form-element-fields">
+                                <template for:each={listObjectFields} for:item="objField">
+                                    <option key={objField.key} value={objField.key}>{objField.value}</option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                </lightning-layout-item>
+            </lightning-layout>
+
+
+
+        </div>
+    </div>
+
+    <div class="slds-section slds-is-open">
+        <h3 class="slds-section__title slds-theme_shade">
+            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">2. Configure State Transition
+                Flow</span>
+        </h3>
+        <div aria-hidden="false" class="slds-section__content">
+            <lightning-layout>
+                <lightning-layout-item size="6">
+                    <lightning-datatable key-field="id" data={transitionData} columns={columns}>
+                    </lightning-datatable>
+                </lightning-layout-item>
+                <lightning-layout-item size="6">
+                    <c-st-transition-model valid-transition={validTransition}></c-st-transition-model>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+    </div>
+</template>
