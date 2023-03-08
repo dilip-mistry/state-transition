@@ -30,7 +30,9 @@ global with sharing class ST_TransitionFlowUtility {
 
         if(mapFieldTransitions.containsKey(key)) {
             for(State_Transition__c st : mapFieldTransitions.get(key)) {
-                listAllowedStates.add(st.To_State__c);
+                if(st.From_State__c == fromState) {
+                    listAllowedStates.add(st.To_State__c);
+                }
             }
     
             return listAllowedStates;
