@@ -1,14 +1,20 @@
 <template>
-    <lightning-card>
-        <h3 slot="title">
-            <lightning-icon icon-name="utility:replace" size="small"></lightning-icon>
-            {cardTitle}
-        </h3>
-        <div slot="footer">
-            <lightning-button variant="brand" label={changeBtnLabel}></lightning-button>
-        </div>
-        <p class="slds-p-horizontal_small">
-            Card Body (custom component)
-        </p>
-    </lightning-card>
+    <lightning-record-edit-form object-api-name={objectName} record-id={recordId} onsuccess={handleSuccess}>
+        <lightning-card>
+            <h3 slot="title">
+                <lightning-icon icon-name="utility:replace" size="small" class="slds-p-right_small"></lightning-icon>
+                {cardTitle}
+            </h3>
+            <div slot="footer">
+                <lightning-button variant="brand" type="submit" label={changeBtnLabel}></lightning-button>
+            </div>
+            <p class="slds-p-horizontal_small">
+
+                <template for:each={fields} for:item="field">
+                    <lightning-input-field key={field} field-name={field}> </lightning-input-field>
+                </template>
+
+            </p>
+        </lightning-card>
+    </lightning-record-edit-form>
 </template>
