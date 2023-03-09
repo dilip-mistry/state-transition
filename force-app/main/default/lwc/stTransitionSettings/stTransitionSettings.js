@@ -7,6 +7,9 @@ export default class StTransitionSettings extends LightningElement {
     @track listObjectFields;
     @track error;
 
+    @track selectedObject;
+    @track selectedField;
+
     @track transitionData = [];
     @track columns = [
         { label: 'From', fieldName: 'from' },
@@ -26,14 +29,12 @@ export default class StTransitionSettings extends LightningElement {
     connectedCallback() {
         getAllObjects()
             .then(result => {
-                this.listObjects = [{ key: '', value: '' }];
-                console.log("result", result);
                 if (result) {
+                    this.listObjects = [{ value: '', label: '' }];
                     for (var key in result) {
-                        this.listObjects.push({ value: result[key], key: key }); //Here we are creating the array to show on UI.
+                        this.listObjects.push({ label: result[key], value: key }); //Here we are creating the array to show on UI.
                     }
                     this.listObjects = this.sortDataByValue(this.listObjects);
-                    console.log("listObjects", this.listObjects);
                 }
 
             })
@@ -43,21 +44,18 @@ export default class StTransitionSettings extends LightningElement {
 
     }
 
-    onObjectChange(event) {
-        this.listObjectFields = [{ key: "", value: "" }];
+    handleObjectChange(event) {
+        this.selectedObject = event.detail.value;
+        this.selectedField = null;
 
-        const selectedObject = event.target.value;
-        console.log("selectedObject", selectedObject);
-
-        getFields({ objectName: selectedObject })
+        getFields({ objectName: this.selectedObject })
             .then((result) => {
-                console.log(result);
                 if (result) {
+                    this.listObjectFields = [{ value: "", label: "" }];
                     for (var key in result) {
-                        this.listObjectFields.push({ value: result[key], key: key }); //Here we are creating the array to show on UI.
+                        this.listObjectFields.push({ label: result[key], value: key }); //Here we are creating the array to show on UI.
                     }
                     this.listObjectFields = this.sortDataByValue(this.listObjectFields);
-                    console.log("listObjects", this.listObjectFields);
                 }
 
             })
@@ -66,7 +64,12 @@ export default class StTransitionSettings extends LightningElement {
             });
     }
 
+    handleFieldChange(event) {
+        this.selectedField = event.detail.value;
+        console.log("Selected Field:" + this.selectedField);
+    }
+
     sortDataByValue(records) {
-        return records.sort((a, b) => (a.value < b.value) ? -1 : ((b.value > a.value) ? 1 : 0))
+        return records.sort((a, b) => (a.label < b.label) ? -1 : ((b.label > a.label) ? 1 : 0))
     }
 }

@@ -5,35 +5,16 @@
         </h3>
         <div aria-hidden="false" class="slds-section__content">
             <lightning-layout>
-                <lightning-layout-item size="3">
-                    <div class="slds-form-element slds-m-around_x-small">
-                        <label class="slds-form-element__label" for="form-element-object">Object</label>
-                        <div class="slds-form-element__control">
-                            <select class="slds-select" id="form-element-object" onchange={onObjectChange}>
-                                <template for:each={listObjects} for:item="listObjItem">
-                                    <option key={listObjItem.key} value={listObjItem.key}>{listObjItem.value}</option>
-                                </template>
-                            </select>
-                        </div>
-                    </div>
+                <lightning-layout-item size="3" class="slds-p-around_x-small">
+                    <lightning-combobox name="object" label="Object" value={selectedObject} placeholder="Select Object"
+                        options={listObjects} onchange={handleObjectChange}></lightning-combobox>
                 </lightning-layout-item>
 
-                <lightning-layout-item size="3">
-                    <div class="slds-form-element slds-m-around_x-small">
-                        <label class="slds-form-element__label" for="form-element-fields">Field</label>
-                        <div class="slds-form-element__control">
-                            <select class="slds-select" id="form-element-fields">
-                                <template for:each={listObjectFields} for:item="objField">
-                                    <option key={objField.key} value={objField.key}>{objField.value}</option>
-                                </template>
-                            </select>
-                        </div>
-                    </div>
+                <lightning-layout-item size="3" class="slds-p-around_x-small">
+                    <lightning-combobox name="field" label="Field" value={selectedField} placeholder="Select Field"
+                        options={listObjectFields} onchange={handleFieldChange}></lightning-combobox>
                 </lightning-layout-item>
             </lightning-layout>
-
-
-
         </div>
     </div>
 
