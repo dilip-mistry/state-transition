@@ -58,22 +58,23 @@
 													for:index="index">
 													<tr class="inputRows" key={eachRecord.Id}>
 														<td data-label="From">
-															<lightning-combobox name="From" variant="label-hidden"
-																data-id={eachRecord.Id} value={eachRecord.From_State__c}
-																placeholder="-Select-" options={listFieldValues}
-																onchange={updateValues}>
+															<lightning-combobox name="From_State__c"
+																variant="label-hidden" data-id={eachRecord.Id}
+																value={eachRecord.From_State__c} placeholder="-Select-"
+																options={listFieldValues} onchange={updateValues}>
 															</lightning-combobox>
 														</td>
 														<td data-label="To">
-															<lightning-combobox name="To" variant="label-hidden"
-																data-id={eachRecord.Id} value={eachRecord.To_State__c}
-																placeholder="-Select-" options={listFieldValues}
-																onchange={updateValues}>
+															<lightning-combobox name="To_State__c"
+																variant="label-hidden" data-id={eachRecord.Id}
+																value={eachRecord.To_State__c} placeholder="-Select-"
+																options={listFieldValues} onchange={updateValues}>
 															</lightning-combobox>
 														</td>
 														<td data-label="AllowedProfiles">
 															<c-multi-select-combobox name="AllowedProfiles"
-																variant="label-hidden" options={listProfilesName}
+																variant="label-hidden"
+																options={eachRecord.profileOptions}
 																onchange={updateValues}>
 															</c-multi-select-combobox>
 														</td>

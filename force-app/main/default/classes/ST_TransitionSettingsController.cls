@@ -54,4 +54,32 @@ public with sharing class ST_TransitionSettingsController {
         
         return mapPicklistValues;
     }
+
+    @AuraEnabled(cacheable=true)
+    public static String[] getProfilesNames(){
+        String[] listProfileNames = new String[]{};
+
+        Profile[] listProfiles = [SELECT Id, Name FROM Profile order by Name];
+
+        for(Profile p : listProfiles) {
+            listProfileNames.add(p.Name);
+        }
+        
+        return listProfileNames;
+    }
+
+    @AuraEnabled
+    public static string dmlOnStateTransition(Object data) {
+        List<State_Transition__c> upsertST = (List<State_Transition__c>) JSON.deserialize(JSON.serialize(data), List<State_Transition__c>.class);
+        try {
+            if(upsertST != null && !upsertST.isEmpty()){
+                insert upsertST;
+            }
+            return 'Success: State Transition(s) insert successfully';
+        }
+        catch (Exception e) {
+            String errorMsg = 'The following exception has occurred: ' + e.getMessage();
+            throw new AuraHandledException(ErrorMsg);
+        }
+    }
 }

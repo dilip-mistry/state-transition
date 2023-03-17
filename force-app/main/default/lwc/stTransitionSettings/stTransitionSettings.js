@@ -3,18 +3,19 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getObjects from '@salesforce/apex/ST_TransitionSettingsController.getObjects';
 import getFields from '@salesforce/apex/ST_TransitionSettingsController.getObjectFields';
 import getPicklistValues from '@salesforce/apex/ST_TransitionSettingsController.getPicklistValues';
-import getProfilesName from '@salesforce/apex/ST_TransitionSettingsController.getProfilesName';
+import getProfilesNames from '@salesforce/apex/ST_TransitionSettingsController.getProfilesNames';
 import getAllowedTransitions from '@salesforce/apex/ST_TransitionFlowUtility.getAllowedTransitions';
 import dmlOnStateTransition from '@salesforce/apex/ST_TransitionSettingsController.dmlOnStateTransition';
 
 export default class StTransitionSettings extends LightningElement {
+    @track error;
     @track listObjects;
     @track listObjectFields;
     @track listFieldValues;
-    @track listProfilesName;
     @track isLoading = true;
     selectedOptions = [];
-    @track error;
+
+    profileDropDownOptions;
 
     @api selectedObject;
     @api selectedField;
@@ -37,6 +38,13 @@ export default class StTransitionSettings extends LightningElement {
             this.error = undefined;
         } else if (error) {
             this.error = error;
+        }
+    }
+
+    @wire(getProfilesNames)
+    wireProfiles({ error, data }) {
+        if (data) {
+            this.profileDropDownOptions = data.map((profName) => ({ "label": profName, "value": profName }));
         }
     }
 
@@ -71,6 +79,8 @@ export default class StTransitionSettings extends LightningElement {
 
     handleFieldChange(event) {
         this.selectedField = event.detail.value;
+        this.allowedTransitions = [];
+
         console.log('this.selectedField - ', this.selectedField);
 
         getPicklistValues({ objectName: this.selectedObject, fieldName: this.selectedField })
@@ -86,28 +96,21 @@ export default class StTransitionSettings extends LightningElement {
                 return getAllowedTransitions({ objName: this.selectedObject, fieldName: this.selectedField });
             })
             .then((result) => {
-                this.allowedTransitions = result;
+                this.allowedTransitions = (Array.isArray(result) ? result : []).map((item) => {
+
+                    item = { ...item, profileOptions: [...this.profileDropDownOptions] };
+
+                    if (item.Allowed_Profiles__c) {
+                        item.Allowed_Profiles__c.split(",").forEach((profName) => {
+                            item.profileOptions.find(profOpt => profOpt.label == profName).selected = true;
+                        });
+                    }
+                    return (item);
+                });
             })
             .catch((error) => {
                 this.error = error;
             });
-    }
-
-    @wire(getProfilesName)
-    wiredProfileName({ error, data }) {
-        if (data) {
-            this.listProfilesName = [];
-            for (var key in data) {
-                this.listProfilesName.push({ label: data[key], value: key });
-            }
-            this.listProfilesName = this.sortDataByValue(this.listProfilesName);
-            this.listProfilesName = [{ label: "All Profiles Allowed", value: "" }, ...this.listProfilesName];
-
-            this.error = undefined;
-        } else if (error) {
-            this.error = error;
-            this.listProfilesName = undefined;
-        }
     }
 
     handleChange(event) {
@@ -121,22 +124,22 @@ export default class StTransitionSettings extends LightningElement {
     addRow() {
         var newTransition = { From_State__c: "", To_State__c: "", Id: (++this.keyIndex), Allowed_Profiles__c: "" };
         this.allowedTransitions = [...(Array.isArray(this.allowedTransitions) ? this.allowedTransitions : []), newTransition];
-
-        console.log("allowedTransitions", JSON.stringify(this.allowedTransitions));
     }
 
     //update table row values in list
     updateValues(event) {
-        /*
-        var foundelement = this.allowedTransitions.find(ele => ele.Id == event.target.dataset.id);
-        if (event.target.name === 'From') {
-            foundelement.From_State__c = event.target.value;
-        } else if (event.target.name === 'To') {
-            foundelement.To_State__c = event.target.value;
+        console.log(JSON.stringify(this.allowedTransitions));
+
+        var editedItem = this.allowedTransitions.find(ele => ele.Id == event.target.dataset.id);
+        console.log("editedItem", JSON.stringify(editedItem));
+        if (event.target.name === 'From_State__c') {
+            editedItem.From_State__c = event.target.value;
+        } else if (event.target.name === 'To_State__c') {
+            editedItem.To_State__c = event.target.value;
         } else if (event.target.name === 'AllowedProfiles') {
-            foundelement.Allowed_Profiles__c = event.detail.map((item) => item.label).join(",");
+            console.log("AllowedProfiles", JSON.stringify(event.detail));
+            //editedItem.Allowed_Profiles__c = event.detail.map((item) => item.label).join(",");
         }
-        */
     }
 
     //handle save and process dml 
