@@ -1,38 +1,104 @@
 <template>
-    <div class="slds-section slds-is-open">
-        <h3 class="slds-section__title slds-theme_shade">
-            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">1. Select Object & Field</span>
-        </h3>
-        <div aria-hidden="false" class="slds-section__content">
-            <lightning-layout>
-                <lightning-layout-item size="3" class="slds-p-around_x-small">
-                    <lightning-combobox name="object" label="Object" value={selectedObject} placeholder="Select Object"
-                        options={listObjects} onchange={handleObjectChange}></lightning-combobox>
-                </lightning-layout-item>
+	<!--template if:true={isLoading}>
+		<lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass"></lightning-spinner>
+	</template-->
+	<div class="slds-section slds-is-open">
+		<h3 class="slds-section__title slds-theme_shade">
+			<span class="slds-truncate slds-p-horizontal_small" title="Section Title">1. Select Object & Field</span>
+		</h3>
+		<div aria-hidden="false" class="slds-section__content">
+			<lightning-layout>
+				<lightning-layout-item size="3" class="slds-p-around_x-small">
+					<lightning-combobox name="object" label="Object" value={selectedObject} placeholder="Select Object"
+						options={listObjects} onchange={handleObjectChange}></lightning-combobox>
+				</lightning-layout-item>
 
-                <lightning-layout-item size="3" class="slds-p-around_x-small">
-                    <lightning-combobox name="field" label="Field" value={selectedField} placeholder="Select Field"
-                        options={listObjectFields} onchange={handleFieldChange}></lightning-combobox>
-                </lightning-layout-item>
-            </lightning-layout>
-        </div>
-    </div>
-
-    <div class="slds-section slds-is-open">
-        <h3 class="slds-section__title slds-theme_shade">
-            <span class="slds-truncate slds-p-horizontal_small" title="Section Title">2. Configure State Transition
-                Flow</span>
-        </h3>
-        <div aria-hidden="false" class="slds-section__content">
-            <lightning-layout>
-                <lightning-layout-item size="6">
-                    <lightning-datatable key-field="id" data={transitionData} columns={columns}>
-                    </lightning-datatable>
-                </lightning-layout-item>
-                <lightning-layout-item size="6">
-                    <c-st-transition-model valid-transition={validTransition}></c-st-transition-model>
-                </lightning-layout-item>
-            </lightning-layout>
-        </div>
-    </div>
+				<lightning-layout-item size="3" class="slds-p-around_x-small">
+					<lightning-combobox name="field" label="Field" value={selectedField} placeholder="Select Field"
+						options={listObjectFields} onchange={handleFieldChange}></lightning-combobox>
+				</lightning-layout-item>
+			</lightning-layout>
+		</div>
+	</div>
+	<template lwc:if={showTransitionSection}>
+	<div class="slds-section slds-is-open">
+		<h3 class="slds-section__title slds-theme_shade">
+			<span class="slds-truncate slds-p-horizontal_small" title="Section Title">2. Configure State Transition Flow</span>
+		</h3>
+		<div aria-hidden="false" class="slds-section__content">
+			<lightning-layout>
+				<lightning-layout-item size="6">
+					<lightning-card header="Manage Transition">
+						<div class="slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none modalBodyy">							
+							<lightning-card>								
+								<div class="slds-m-around_medium">
+									<table class="slds-table slds-table_cell-buffer slds-table_bordered"
+										aria-labelledby="element-with-table-label other-element-with-table-label">
+										<thead>
+											<tr class="slds-line-height_reset">
+												<th class="" scope="col">
+													<div class="slds-truncate" title="From">From</div>
+												</th>
+												<th class="" scope="col">
+													<div class="slds-truncate" title="To">To</div>
+												</th>
+												<th class="" scope="col">
+													<div class="slds-truncate" title="Allowed Profiles">Allowed Profiles</div>
+												</th>
+												<th class="" scope="col">
+													<div class="slds-truncate" title="Action">Action</div>
+												</th>
+											</tr>
+										</thead>
+										<tbody>
+                                        <template for:each={records} for:item="eachRecord" for:index="index">
+												<tr class="inputRows" key={eachRecord.Id}>
+													<td data-label="From">
+														<lightning-combobox name="From" variant="label-hidden" data-id={eachRecord.Id}
+                                                            value={eachRecord.fromValues}
+                                                            placeholder="-Select-"
+                                                            options={listFieldValues} 
+                                                            onchange={updateValues}>
+                                                        </lightning-combobox>
+													</td>
+													<td data-label="To">
+														<lightning-combobox name="To" variant="label-hidden" data-id={eachRecord.Id}
+                                                            value={eachRecord.toValues}
+                                                            placeholder="-Select-"
+                                                            options={listFieldValues} 
+                                                            onchange={updateValues}>
+                                                        </lightning-combobox>
+													</td>
+													<td data-label="AllowedProfiles">
+														<c-multi-select-combobox name="AllowedProfiles" variant="label-hidden" 														
+															options={listProfilesName}
+															onchange={updateValues}>
+														</c-multi-select-combobox>
+													</td>
+													<td data-label="Delete">
+														<lightning-icon icon-name="utility:delete" data-id={eachRecord.Id}
+															alternative-text="Delete Row" size="small" title="Delete Row" onclick={removeRow}>
+														</lightning-icon>
+													</td>
+												</tr>												
+											</template>
+										</tbody>
+									</table>
+								</div>
+							</lightning-card>
+						</div>
+						<div slot="footer">
+							<lightning-button icon-name="utility:add" slot="actions" label="Add Row" onclick={addRow}></lightning-button>
+							&nbsp;
+							<lightning-button variant="brand" label="Save" onclick={handleSaveAction} disabled={isDisable}></lightning-button>
+						</div>
+					</lightning-card>
+				</lightning-layout-item>
+				<lightning-layout-item size="6">
+					<c-st-transition-model valid-transition={validTransition}></c-st-transition-model>
+				</lightning-layout-item>
+			</lightning-layout>
+		</div>
+	</div>
+	</template>
 </template>

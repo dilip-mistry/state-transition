@@ -11,7 +11,7 @@
             <p class="slds-p-horizontal_small">
 
                 <template for:each={fields} for:item="field">
-                    <lightning-input-field key={field} field-name={field}> </lightning-input-field>
+                    <lightning-input-field key={field.fieldName} field-name={field.fieldName}> </lightning-input-field>
                 </template>
 
             </p>
