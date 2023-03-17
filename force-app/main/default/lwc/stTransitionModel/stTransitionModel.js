@@ -14,16 +14,22 @@ export default class StTransitionModel extends LightningElement {
             loadScript(this, StateModelLib + '/js/nomnoml.js')
         ])
             .then(() => {
-                console.log("script loaded successfully");
-                var canvas = this.template.querySelector('canvas');
-                console.log("canvas elem", canvas);
-
-                var source = this.validTransition.map(function (element) {
-                    return `[${element.from}] -> [${element.to}]`;
-                }).join('\n');;
-
-                nomnoml.draw(canvas, source);
+                this.drawGraph();
             });
+    }
+
+    @api
+    drawGraph() {
+        var canvas = this.template.querySelector('canvas');
+        console.log("this.validTransition", JSON.stringify(this.validTransition));
+
+        if (this.validTransition?.length) {
+            var source = this.validTransition.map(function (element) {
+                return `[${element.From_State__c}] -> [${element.To_State__c}]`;
+            }).join('\n');
+
+            nomnoml.draw(canvas, source);
+        }
     }
 
 }

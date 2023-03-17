@@ -4,7 +4,7 @@ global with sharing class ST_TransitionFlowUtility {
     static {
         mapFieldTransitions = new Map<String, State_Transition__c[]>();
 
-        for(State_Transition__c st : [select Id, Object__c, Field__c, From_State__c, To_State__c
+        for(State_Transition__c st : [select Id, Object__c, Field__c, From_State__c, To_State__c, Allowed_Profiles__c
                                     from State_Transition__c]) {
             String key = st.Object__c + '-' + st.Field__c;
 
@@ -14,7 +14,9 @@ global with sharing class ST_TransitionFlowUtility {
             mapFieldTransitions.get(key).add(st);
         }
     }
+    
 
+    @AuraEnabled(cacheable=true)
     global static State_Transition__c[] getAllowedTransitions(String objName, String fieldName) {
         String key = objName + '-' + fieldName;
         if(mapFieldTransitions.containsKey(key)) {
