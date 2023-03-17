@@ -101,8 +101,7 @@ export default class StTransitionSettings extends LightningElement {
                 this.listProfilesName.push({ label: data[key], value: key });
             }
             this.listProfilesName = this.sortDataByValue(this.listProfilesName);
-
-            this.listProfilesName.push({ label: "All Profiles Allowed", value: "" });
+            this.listProfilesName = [{ label: "All Profiles Allowed", value: "" }, ...this.listProfilesName];
 
             this.error = undefined;
         } else if (error) {
@@ -115,19 +114,20 @@ export default class StTransitionSettings extends LightningElement {
         this.selectedOptions = event.detail;
     }
 
+
     keyIndex = 0;
 
     //to add row
     addRow() {
-        console.log('addRow');
-        ++this.keyIndex;
-        let myNewElement = { From_State__c: "", To_State__c: "", Id: this.keyIndex, Allowed_Profiles__c: "" };
-        console.log("this.allowedTransitions", JSON.stringify(this.allowedTransitions));
-        this.allowedTransitions = [...this.allowedTransitions, myNewElement];
+        var newTransition = { From_State__c: "", To_State__c: "", Id: (++this.keyIndex), Allowed_Profiles__c: "" };
+        this.allowedTransitions = [...(Array.isArray(this.allowedTransitions) ? this.allowedTransitions : []), newTransition];
+
+        console.log("allowedTransitions", JSON.stringify(this.allowedTransitions));
     }
 
     //update table row values in list
     updateValues(event) {
+        /*
         var foundelement = this.allowedTransitions.find(ele => ele.Id == event.target.dataset.id);
         if (event.target.name === 'From') {
             foundelement.From_State__c = event.target.value;
@@ -136,6 +136,7 @@ export default class StTransitionSettings extends LightningElement {
         } else if (event.target.name === 'AllowedProfiles') {
             foundelement.Allowed_Profiles__c = event.detail.map((item) => item.label).join(",");
         }
+        */
     }
 
     //handle save and process dml 
@@ -162,8 +163,7 @@ export default class StTransitionSettings extends LightningElement {
     }
 
     removeRow(event) {
-        console.log('removeRow -- ' + JSON.stringify(this.allowedTransitions));
-        this.allowedTransitions.splice(this.allowedTransitions.findIndex(row => row.Id === event.target.dataset.id), 1);
+        this.allowedTransitions = this.allowedTransitions.filter(item => item.Id != event.target.dataset.id);
     }
 
     showToast(title, message, variant, mode) {
