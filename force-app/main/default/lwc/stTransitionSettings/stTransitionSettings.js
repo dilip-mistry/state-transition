@@ -183,8 +183,4 @@ export default class StTransitionSettings extends LightningElement {
         });
         this.dispatchEvent(event);
     }
-
-    reDrawGraph() {
-        this.template.querySelector('c-st-transition-model').drawGraph();
-    }
 }
