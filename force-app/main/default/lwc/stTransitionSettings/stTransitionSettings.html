@@ -28,7 +28,7 @@
 			</h3>
 			<div aria-hidden="false" class="slds-section__content">
 				<lightning-layout>
-					<lightning-layout-item size="6">
+					<lightning-layout-item size="8">
 						<lightning-card header="Manage Transition">
 							<div
 								class="slds-p-around_none slds-m-top_x-small slds-m-bottom_medium slds-m-horizontal_none modalBodyy">
@@ -73,8 +73,7 @@
 														</td>
 														<td data-label="AllowedProfiles">
 															<c-multi-select-combobox name="AllowedProfiles"
-																variant="label-hidden"
-																options={eachRecord.profileOptions}
+																variant="label-hidden" options={profileDropDownOptions}
 																onchange={updateValues}>
 															</c-multi-select-combobox>
 														</td>
@@ -101,7 +100,9 @@
 						</lightning-card>
 					</lightning-layout-item>
 					<lightning-layout-item size="6">
-						<c-st-transition-model valid-transition={allowedTransitions}></c-st-transition-model>
+						<template lwc:if={isTrasitionContentReady}>
+							<c-st-transition-model valid-transition={allowedTransitions}></c-st-transition-model>
+						</template>
 					</lightning-layout-item>
 				</lightning-layout>
 			</div>

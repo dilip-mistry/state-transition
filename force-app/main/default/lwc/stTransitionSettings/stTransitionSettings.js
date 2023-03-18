@@ -13,6 +13,8 @@ export default class StTransitionSettings extends LightningElement {
     @track listObjectFields;
     @track listFieldValues;
     @track isLoading = true;
+    @track isTrasitionContentReady = false;
+
     selectedOptions = [];
 
     profileDropDownOptions;
@@ -79,9 +81,8 @@ export default class StTransitionSettings extends LightningElement {
 
     handleFieldChange(event) {
         this.selectedField = event.detail.value;
-        this.allowedTransitions = [];
-
         console.log('this.selectedField - ', this.selectedField);
+        this.isTrasitionContentReady = false;
 
         getPicklistValues({ objectName: this.selectedObject, fieldName: this.selectedField })
             .then((result) => {
@@ -96,6 +97,9 @@ export default class StTransitionSettings extends LightningElement {
                 return getAllowedTransitions({ objName: this.selectedObject, fieldName: this.selectedField });
             })
             .then((result) => {
+                this.allowedTransitions = result;
+                this.isTrasitionContentReady = true;
+                /*
                 this.allowedTransitions = (Array.isArray(result) ? result : []).map((item) => {
 
                     item = { ...item, profileOptions: [...this.profileDropDownOptions] };
@@ -107,6 +111,7 @@ export default class StTransitionSettings extends LightningElement {
                     }
                     return (item);
                 });
+                */
             })
             .catch((error) => {
                 this.error = error;
