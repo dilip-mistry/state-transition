@@ -13,14 +13,13 @@ export default class StTransitionSettings extends LightningElement {
     @track listObjectFields;
     @track listFieldValues;
     @track isLoading = true;
-    @track isTrasitionContentReady = false;  
+    @track isTrasitionContentReady = false;
     keyIndex = 0;
     profileDropDownOptions;
     @api selectedObject;
     @api selectedField;
     @track allowedTransitions;
     @track delStateTransitionIds = '';
-    @track isValid=true;
 
     get showTransitionSection() {
         return this.selectedObject && this.selectedField;
@@ -123,8 +122,8 @@ export default class StTransitionSettings extends LightningElement {
 
     //to add row
     addRow() {
-        var newTransition = { From_State__c: "", To_State__c: "", Id: (++this.keyIndex), Allowed_Profiles__c: "",Object__c:this.selectedObject,Field__c: this.selectedField};
-        console.log('newTransition - ',newTransition);
+        var newTransition = { From_State__c: "", To_State__c: "", Id: (++this.keyIndex), Allowed_Profiles__c: "", Object__c: this.selectedObject, Field__c: this.selectedField };
+        console.log('newTransition - ', newTransition);
         this.allowedTransitions = [...(Array.isArray(this.allowedTransitions) ? this.allowedTransitions : []), newTransition];
     }
 
@@ -136,21 +135,40 @@ export default class StTransitionSettings extends LightningElement {
             editedItem.From_State__c = event.target.value;
         } else if (event.target.name === 'To_State__c') {
             editedItem.To_State__c = event.target.value;
-            console.log(' this.allowedTransition - ',JSON.stringify(this.allowedTransitions));
+            console.log(' this.allowedTransition - ', JSON.stringify(this.allowedTransitions));
         } else if (event.target.name === 'Allowed_Profiles__c') {
             //editedItem.Allowed_Profiles__c = event.detail.map((item) => item.label).join(",");
             //console.log("AllowedProfiles", JSON.stringify(editedItem.Allowed_Profiles__c));
         }
-        if (editedItem.From_State__c === editedItem.To_State__c){
-            this.isValid=false;
-            this.showToast('State transitions are same.!', "FROM and To State transitions would not be same!", 'Error', 'dismissable');
+    }
+
+    get hasSameFromToValue() {
+        return this.allowedTransitions.some((item) => {
+            return item.From_State__c === item.To_State__c;
+        });
+    }
+
+    get hasDuplicateTransition() {
+        const set = new Set();
+        var duplicateFlag = false;
+        //add unique property values to Set and compare the size changes to detect duplicate property values.
+        if (this.allowedTransitions.some((transition) => set.size === (set.add(`${transition.From_State__c}-${transition.To_State__c}`), set.size))) {
+            duplicateFlag = true;
         }
+
+        return duplicateFlag;
     }
 
     //Upsert/Delete State Transisition
     handleSaveAction() {
-        if(this.isValid){            
-            if(this.delStateTransitionIds !== ''){
+        if (this.hasSameFromToValue) {
+            this.showToast('Invalid Transition', 'Transition From and To State cannot be the same.', 'Error', 'dismissable');
+        }
+        else if (this.hasDuplicateTransition) {
+            this.showToast('Duplicate Transition', 'Duplicate Transition record identitied with the same From  & To States.', 'Error', 'dismissable');
+        }
+        else {
+            if (this.delStateTransitionIds !== '') {
                 this.delStateTransitionIds = this.delStateTransitionIds.substring(1);
             }
 
@@ -165,22 +183,20 @@ export default class StTransitionSettings extends LightningElement {
                     res.Field__c = this.selectedField;
                 }*/
             });
-            dmlOnStateTransition({ data: this.allowedTransitions, delST : this.delStateTransitionIds })
+            dmlOnStateTransition({ data: this.allowedTransitions, delST: this.delStateTransitionIds })
                 .then(result => {
                     this.showToast('Success', result, 'Success', 'dismissable');
                 }).catch(error => {
                     console.log(error);
                     this.showToast('Error updating or refreshing records', error.body.message, 'Error', 'dismissable');
-                });    
-        } else {
-            this.showToast('Error updating or refreshing records', 'FROM and To State transitions would not be same!', 'Error', 'dismissable');
+                });
         }
     }
 
     //To Remove Row
     removeRow(event) {
-        console.log('remove rows - ',event.target.dataset.id);
-        if(isNaN(event.target.dataset.id)){
+        console.log('remove rows - ', event.target.dataset.id);
+        if (isNaN(event.target.dataset.id)) {
             this.delStateTransitionIds = this.delStateTransitionIds + ',' + event.target.dataset.id;
         }
         this.allowedTransitions = this.allowedTransitions.filter(item => item.Id != event.target.dataset.id);
