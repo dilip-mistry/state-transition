@@ -23,8 +23,7 @@
 	<template lwc:if={showTransitionSection}>
 		<div class="slds-section slds-is-open">
 			<h3 class="slds-section__title slds-theme_shade">
-				<span class="slds-truncate slds-p-horizontal_small" title="Section Title">2. Configure State Transition
-					Flow</span>
+				<span class="slds-truncate slds-p-horizontal_small" title="Section Title">2. Configure State Transition Flow</span>
 			</h3>
 			<div aria-hidden="false" class="slds-section__content">
 				<lightning-layout>
@@ -45,8 +44,9 @@
 														<div class="slds-truncate" title="To">To</div>
 													</th>
 													<th class="" scope="col">
-														<div class="slds-truncate" title="Allowed Profiles">Allowed
-															Profiles</div>
+														<div class="slds-truncate" title="Allowed Profiles">
+															Allowed Profiles
+														</div>
 													</th>
 													<th class="" scope="col">
 														<div class="slds-truncate" title="Action">Action</div>
@@ -61,18 +61,18 @@
 															<lightning-combobox name="From_State__c"
 																variant="label-hidden" data-id={eachRecord.Id}
 																value={eachRecord.From_State__c} placeholder="-Select-"
-																options={listFieldValues} onchange={updateValues}>
+																options={listFieldValues} onchange={updateValues} required>
 															</lightning-combobox>
 														</td>
 														<td data-label="To">
 															<lightning-combobox name="To_State__c"
 																variant="label-hidden" data-id={eachRecord.Id}
 																value={eachRecord.To_State__c} placeholder="-Select-"
-																options={listFieldValues} onchange={updateValues}>
+																options={listFieldValues} onchange={updateValues} required>
 															</lightning-combobox>
 														</td>
 														<td data-label="AllowedProfiles">
-															<c-multi-select-combobox name="AllowedProfiles"
+															<c-multi-select-combobox name="Allowed_Profiles__c" value={eachRecord.Allowed_Profiles__c}
 																variant="label-hidden" options={profileDropDownOptions}
 																onchange={updateValues}>
 															</c-multi-select-combobox>
