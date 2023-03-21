@@ -6,14 +6,12 @@
                 {cardTitle}
             </h3>
             <div slot="footer">
-                <lightning-button variant="brand" type="submit" label={changeBtnLabel}></lightning-button>
+                <lightning-button variant="brand" type="submit" label={changeBtnLabel}
+                    onclick={updateRecord}></lightning-button>
             </div>
             <p class="slds-p-horizontal_small">
-
-                <template for:each={fields} for:item="field">
-                    <lightning-input-field key={field.fieldName} field-name={field.fieldName}> </lightning-input-field>
-                </template>
-
+                <lightning-combobox label={fieldLabel} value={selectedState} options={allowedToStates} required="true"
+                    onchange={handleStateChange}></lightning-combobox>
             </p>
         </lightning-card>
     </lightning-record-edit-form>

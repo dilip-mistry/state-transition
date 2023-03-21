@@ -9,8 +9,8 @@
         <targetConfig targets="lightning__RecordPage">
             <property name="cardTitle" type="String" label="Card Title"
                 description="Title of the card displayed by the component" />
-            <property name="fieldNames" type="String" label="Field Names"
-                description="API names of the picklist fields for state change. Separate them with commas if there are multiple" />
+            <property name="fieldApiName" type="String" label="Field Names"
+                description="API name of the picklist field for state change." />
             <property name="changeBtnLabel" type="String" label="Button Label"
                 description="Label of the button updating the state of the fields" />
         </targetConfig>

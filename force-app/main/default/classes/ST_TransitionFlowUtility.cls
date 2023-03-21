@@ -25,7 +25,8 @@ global with sharing class ST_TransitionFlowUtility {
         return null;
     }
 
-    global static String[] getAllowedTransitions(String objName, String fieldName, String fromState) {
+    @AuraEnabled(cacheable=true)
+    global static String[] getAllowedTransitionsFrom(String objName, String fieldName, String fromState) {
         String[] listAllowedStates = new String[]{};
         
         String key = objName + '-' + fieldName;
