@@ -81,6 +81,7 @@ export default class StTransitionSettings extends LightningElement {
     handleFieldChange(event) {
         this.selectedField = event.detail.value;
         console.log('this.selectedField - ', this.selectedField);
+        this.allowedTransitions = [];
         this.isTrasitionContentReady = false;
 
         getPicklistValues({ objectName: this.selectedObject, fieldName: this.selectedField })
