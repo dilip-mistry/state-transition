@@ -98,22 +98,9 @@ export default class StTransitionSettings extends LightningElement {
 
                 return getAllowedTransitions({ objName: this.selectedObject, fieldName: this.selectedField });
             })
-            .then((result) => {
-                this.allowedTransitions = result;
+            .then((data) => {
+                this.allowedTransitions = [...data];
                 this.isTrasitionContentReady = true;
-                /*
-                this.allowedTransitions = (Array.isArray(result) ? result : []).map((item) => {
-
-                    item = { ...item, profileOptions: [...this.profileDropDownOptions] };
-
-                    if (item.Allowed_Profiles__c) {
-                        item.Allowed_Profiles__c.split(",").forEach((profName) => {
-                            item.profileOptions.find(profOpt => profOpt.label == profName).selected = true;
-                        });
-                    }
-                    return (item);
-                });
-                */
             })
             .catch((error) => {
                 this.error = error;
@@ -129,6 +116,19 @@ export default class StTransitionSettings extends LightningElement {
 
     //update table row values in list
     updateValues(event) {
+        if (event.target.dataset.id) {
+            this.allowedTransitions = this.allowedTransitions.map(item => {
+                if (item.Id == event.target.dataset.id) {
+                    if (event.target.name === 'From_State__c') {
+                        item.From_State__c = event.target.value;
+                    } else if (event.target.name === 'To_State__c') {
+                        item.To_State__c = event.target.value;
+                    }
+                }
+                return item;
+            });
+        }
+        /*
         var editedItem = this.allowedTransitions.find(ele => ele.Id == event.target.dataset.id);
         console.log("editedItem", JSON.stringify(editedItem));
         if (event.target.name === 'From_State__c') {
@@ -136,10 +136,8 @@ export default class StTransitionSettings extends LightningElement {
         } else if (event.target.name === 'To_State__c') {
             editedItem.To_State__c = event.target.value;
             console.log(' this.allowedTransition - ', JSON.stringify(this.allowedTransitions));
-        } else if (event.target.name === 'Allowed_Profiles__c') {
-            //editedItem.Allowed_Profiles__c = event.detail.map((item) => item.label).join(",");
-            //console.log("AllowedProfiles", JSON.stringify(editedItem.Allowed_Profiles__c));
         }
+        */
     }
 
     get hasSameFromToValue() {
@@ -176,12 +174,6 @@ export default class StTransitionSettings extends LightningElement {
                 if (!isNaN(res.Id)) {
                     res.Id = null;
                 }
-                /*if (res.Object__c == undefined) {
-                    res.Object__c = this.selectedObject;
-                }
-                if (res.Field__c == undefined) {
-                    res.Field__c = this.selectedField;
-                }*/
             });
             dmlOnStateTransition({ data: this.allowedTransitions, delST: this.delStateTransitionIds })
                 .then(result => {
@@ -190,6 +182,27 @@ export default class StTransitionSettings extends LightningElement {
                     console.log(error);
                     this.showToast('Error updating or refreshing records', error.body.message, 'Error', 'dismissable');
                 });
+        }
+    }
+
+
+    selectedProfiles;
+
+    handleProfileSelection(event) {
+        this.selectedProfiles = event.detail.value;
+    }
+
+    handleAppplyProfiles() {
+        if (this.selectedProfiles?.length > 0) {
+            var selectedTransitions = [...this.template.querySelectorAll('lightning-input')]
+                .filter(element => element.checked)
+                .map(element => element.dataset.id);
+            console.log(selectedTransitions, this.selectedProfiles);
+
+
+            this.allowedTransitions = this.allowedTransitions.map(item => {
+                return selectedTransitions.includes(item.Id) ? { ...item, "Allowed_Profiles__c": this.selectedProfiles.join(", ") } : item;
+            });
         }
     }
 
@@ -210,5 +223,9 @@ export default class StTransitionSettings extends LightningElement {
             mode: mode
         });
         this.dispatchEvent(event);
+    }
+
+    get disableApplyProfilesBtn() {
+        return !(this.allowedTransitions?.length > 0);
     }
 }
