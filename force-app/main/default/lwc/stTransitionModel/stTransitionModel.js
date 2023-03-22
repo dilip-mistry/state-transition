@@ -35,7 +35,7 @@ export default class StTransitionModel extends LightningElement {
         var canvas = this.template.querySelector('canvas');
         console.log("this._validTransition", JSON.stringify(this._validTransition));
 
-        if (this._validTransition?.length) {
+        if (this._validTransition) {
             var source = this._validTransition
                 .filter(item => (item.From_State__c && item.To_State__c))
                 .map(function (element) {

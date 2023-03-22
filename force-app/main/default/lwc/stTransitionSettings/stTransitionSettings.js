@@ -21,10 +21,6 @@ export default class StTransitionSettings extends LightningElement {
     @track allowedTransitions;
     @track delStateTransitionIds = '';
 
-    get showTransitionSection() {
-        return this.selectedObject && this.selectedField;
-    }
-
     @wire(getObjects)
     wiredObjectsName({ error, data }) {
         if (data) {
@@ -60,6 +56,7 @@ export default class StTransitionSettings extends LightningElement {
         this.selectedObject = event.detail.value;
         this.selectedField = null;
         console.log('this.selectedObject - ', this.selectedObject);
+        this.isTrasitionContentReady = false;
 
         getFields({ objectName: this.selectedObject })
             .then((result) => {
@@ -118,14 +115,15 @@ export default class StTransitionSettings extends LightningElement {
     updateValues(event) {
         if (event.target.dataset.id) {
             this.allowedTransitions = this.allowedTransitions.map(item => {
-                if (item.Id == event.target.dataset.id) {
+                var newItem = { ...item };
+                if (newItem.Id == event.target.dataset.id) {
                     if (event.target.name === 'From_State__c') {
-                        item.From_State__c = event.target.value;
+                        newItem.From_State__c = event.target.value;
                     } else if (event.target.name === 'To_State__c') {
-                        item.To_State__c = event.target.value;
+                        newItem.To_State__c = event.target.value;
                     }
                 }
-                return item;
+                return newItem;
             });
         }
         /*
@@ -227,5 +225,8 @@ export default class StTransitionSettings extends LightningElement {
 
     get disableApplyProfilesBtn() {
         return !(this.allowedTransitions?.length > 0);
+    }
+    get isObjectFieldSelected() {
+        return this.selectedField ? true : false;
     }
 }

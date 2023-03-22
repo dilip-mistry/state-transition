@@ -49,17 +49,23 @@
 		<lightning-layout-item flexibility="auto" class="slds-m-left_small">
 			<lightning-card title="Configure State Transition Flow">
 				<p slot="actions">
-					<lightning-button-group>
-						<lightning-button icon-name="utility:add" label="Add Row" onclick={addRow}></lightning-button>
+					<template if:true={isObjectFieldSelected}>
+						<lightning-button-group>
+							<lightning-button icon-name="utility:add" label="Add Row"
+								onclick={addRow}></lightning-button>
 
-						<lightning-button icon-name="utility:save" variant="brand" label="Save"
-							onclick={handleSaveAction} disabled={isDisable}></lightning-button>
-					</lightning-button-group>
+							<lightning-button icon-name="utility:save" variant="brand" label="Save"
+								onclick={handleSaveAction} disabled={isDisable}></lightning-button>
+						</lightning-button-group>
+					</template>
 				</p>
 
 				<p class="slds-p-horizontal_small">
+					<template if:false={isObjectFieldSelected}>
+						Please select an object and a field to proceed.
+					</template>
 
-					<template lwc:if={showTransitionSection}>
+					<template if:true={isObjectFieldSelected}>
 						<table class="slds-table slds-table_cell-buffer slds-table_bordered"
 							aria-labelledby="element-with-table-label other-element-with-table-label">
 							<thead>
