@@ -202,16 +202,17 @@ export default class StTransitionSettings extends LightningElement {
         this.selectedProfiles = event.detail.value;
     }
 
-    handleAppplyProfiles() {
-        if (this.selectedProfiles?.length > 0) {
-            var selectedTransitions = [...this.template.querySelectorAll('lightning-input')]
-                .filter(element => element.checked)
-                .map(element => element.dataset.id);
+    handleApplyProfiles() {
+        console.log("handleApplyProfiles:",
+            JSON.stringify(this.selectedProfiles));
 
-            this.allowedTransitions = this.allowedTransitions.map(item => {
-                return selectedTransitions.includes(item.Id) ? { ...item, "Allowed_Profiles__c": this.selectedProfiles.join(", ") } : item;
-            });
-        }
+        var selectedTransitions = [...this.template.querySelectorAll('lightning-input')]
+            .filter(element => element.checked)
+            .map(element => element.dataset.id);
+
+        this.allowedTransitions = this.allowedTransitions.map(item => {
+            return selectedTransitions.includes(item.Id) ? { ...item, "Allowed_Profiles__c": this.selectedProfiles?.join(", ") } : item;
+        });
     }
 
     //To Remove Row
