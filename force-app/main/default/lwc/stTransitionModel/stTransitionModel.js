@@ -13,9 +13,8 @@ export default class StTransitionModel extends LightningElement {
         return this._validTransition;
     }
     set validTransition(value) {
-        this.setAttribute('transitions', value);
         this._validTransition = value;
-
+        console.log("new transitions received by graph", JSON.stringify(this._validTransition));
         this.drawGraph();
     }
 

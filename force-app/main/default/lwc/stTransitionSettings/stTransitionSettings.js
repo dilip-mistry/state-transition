@@ -5,7 +5,8 @@ import getFields from '@salesforce/apex/ST_TransitionSettingsController.getObjec
 import getPicklistValues from '@salesforce/apex/ST_TransitionSettingsController.getPicklistValues';
 import getProfilesNames from '@salesforce/apex/ST_TransitionSettingsController.getProfilesNames';
 import getAllowedTransitions from '@salesforce/apex/ST_TransitionFlowUtility.getAllowedTransitions';
-import dmlOnStateTransition from '@salesforce/apex/ST_TransitionSettingsController.dmlOnStateTransition';
+import saveAllowedTransitions from '@salesforce/apex/ST_TransitionSettingsController.saveAllowedTransitions';
+import { refreshApex } from '@salesforce/apex';
 
 export default class StTransitionSettings extends LightningElement {
     @track error;
@@ -13,13 +14,16 @@ export default class StTransitionSettings extends LightningElement {
     @track listObjectFields;
     @track listFieldValues;
     @track isLoading = true;
-    @track isTrasitionContentReady = false;
-    keyIndex = 0;
-    profileDropDownOptions;
     @api selectedObject;
     @api selectedField;
-    @track allowedTransitions;
-    @track delStateTransitionIds = '';
+
+    @track wiredAllowedTransitions;
+    @track allowedTransitions = [];
+
+    keyIndex = 0;
+    profileDropDownOptions;
+    delStateTransitionIds = [];
+    selectedProfiles;
 
     @wire(getObjects)
     wiredObjectsName({ error, data }) {
@@ -39,12 +43,23 @@ export default class StTransitionSettings extends LightningElement {
     @wire(getProfilesNames)
     wireProfiles({ error, data }) {
         if (data) {
-            /*this.profileDropDownOptions = [{ value: "All Profiles", label: "All Profiles"}];
-            for (var key in data) {
-                this.profileDropDownOptions.push({ label: data[key], value: key });
-            }*/
-            console.log('@@@ wireProfiles');
             this.profileDropDownOptions = data.map((profName) => ({ "label": profName, "value": profName }));
+        }
+    }
+
+    @wire(getAllowedTransitions, { objName: '$selectedObject', fieldName: '$selectedField' })
+    wiredGetAllowedTransitions(value) {
+        // Hold on to the provisioned value so we can refresh it later.
+        this.wiredAllowedTransitions = value; // track the provisioned value
+
+        const { data, error } = value; // destructure the provisioned value
+        if (data) {
+            console.log("getAllowedTransitions result: ", data);
+            this.allowedTransitions = (Array.isArray(data) ? [...data] : []);
+        }
+        else if (error) {
+            console.log("wiredTransitions error", error);
+            this.allowedTransitions = [];
         }
     }
 
@@ -56,7 +71,6 @@ export default class StTransitionSettings extends LightningElement {
         this.selectedObject = event.detail.value;
         this.selectedField = null;
         console.log('this.selectedObject - ', this.selectedObject);
-        this.isTrasitionContentReady = false;
 
         getFields({ objectName: this.selectedObject })
             .then((result) => {
@@ -82,7 +96,6 @@ export default class StTransitionSettings extends LightningElement {
         this.selectedField = event.detail.value;
         console.log('this.selectedField - ', this.selectedField);
         this.allowedTransitions = [];
-        this.isTrasitionContentReady = false;
 
         getPicklistValues({ objectName: this.selectedObject, fieldName: this.selectedField })
             .then((result) => {
@@ -94,11 +107,8 @@ export default class StTransitionSettings extends LightningElement {
                     this.listFieldValues = this.sortDataByValue(this.listFieldValues);
                 }
 
-                return getAllowedTransitions({ objName: this.selectedObject, fieldName: this.selectedField });
-            })
-            .then((data) => {
-                this.allowedTransitions = [...data];
-                this.isTrasitionContentReady = true;
+                // call refreshApex
+                refreshApex(this.wiredAllowedTransitions);
             })
             .catch((error) => {
                 this.error = error;
@@ -109,7 +119,15 @@ export default class StTransitionSettings extends LightningElement {
     addRow() {
         var newTransition = { From_State__c: "", To_State__c: "", Id: (++this.keyIndex), Allowed_Profiles__c: "", Object__c: this.selectedObject, Field__c: this.selectedField };
         console.log('newTransition - ', newTransition);
+
+        console.log("addRow:",
+            JSON.stringify(this.allowedTransitions));
+
         this.allowedTransitions = [...(Array.isArray(this.allowedTransitions) ? this.allowedTransitions : []), newTransition];
+
+        console.log("addRow:",
+            JSON.stringify(this.allowedTransitions));
+
     }
 
     //update table row values in list
@@ -127,16 +145,6 @@ export default class StTransitionSettings extends LightningElement {
                 return newItem;
             });
         }
-        /*
-        var editedItem = this.allowedTransitions.find(ele => ele.Id == event.target.dataset.id);
-        console.log("editedItem", JSON.stringify(editedItem));
-        if (event.target.name === 'From_State__c') {
-            editedItem.From_State__c = event.target.value;
-        } else if (event.target.name === 'To_State__c') {
-            editedItem.To_State__c = event.target.value;
-            console.log(' this.allowedTransition - ', JSON.stringify(this.allowedTransitions));
-        }
-        */
     }
 
     get hasSameFromToValue() {
@@ -165,27 +173,30 @@ export default class StTransitionSettings extends LightningElement {
             this.showToast('Duplicate Transition', 'Duplicate Transition record identitied with the same From  & To States.', 'Error', 'dismissable');
         }
         else {
-            if (this.delStateTransitionIds !== '') {
-                this.delStateTransitionIds = this.delStateTransitionIds.substring(1);
-            }
-
             this.allowedTransitions.forEach(res => {
                 if (!isNaN(res.Id)) {
                     res.Id = null;
                 }
             });
-            dmlOnStateTransition({ data: this.allowedTransitions, delST: this.delStateTransitionIds })
+
+            console.log("handleSaveAction:",
+                JSON.stringify(this.allowedTransitions),
+                JSON.stringify(this.delStateTransitionIds));
+
+            saveAllowedTransitions({ recordsToUpsert: this.allowedTransitions, recordsToDelete: this.delStateTransitionIds })
                 .then(result => {
                     this.showToast('Success', result, 'Success', 'dismissable');
-                }).catch(error => {
+                    this.delStateTransitionIds = [];
+
+                    // call refreshApex
+                    refreshApex(this.wiredAllowedTransitions);
+                })
+                .catch(error => {
                     console.log(error);
                     this.showToast('Error updating or refreshing records', error.body.message, 'Error', 'dismissable');
                 });
         }
     }
-
-
-    selectedProfiles;
 
     handleProfileSelection(event) {
         this.selectedProfiles = event.detail.value;
@@ -196,8 +207,6 @@ export default class StTransitionSettings extends LightningElement {
             var selectedTransitions = [...this.template.querySelectorAll('lightning-input')]
                 .filter(element => element.checked)
                 .map(element => element.dataset.id);
-            console.log(selectedTransitions, this.selectedProfiles);
-
 
             this.allowedTransitions = this.allowedTransitions.map(item => {
                 return selectedTransitions.includes(item.Id) ? { ...item, "Allowed_Profiles__c": this.selectedProfiles.join(", ") } : item;
@@ -208,10 +217,15 @@ export default class StTransitionSettings extends LightningElement {
     //To Remove Row
     removeRow(event) {
         console.log('remove rows - ', event.target.dataset.id);
-        if (isNaN(event.target.dataset.id)) {
-            this.delStateTransitionIds = this.delStateTransitionIds + ',' + event.target.dataset.id;
+        const rowId = event.target.dataset?.id;
+
+        // add the row for deletion
+        if (isNaN(rowId) && rowId.length == 18) {
+            this.delStateTransitionIds.push(rowId);
         }
-        this.allowedTransitions = this.allowedTransitions.filter(item => item.Id != event.target.dataset.id);
+
+        // remove the deleted transition from the allowedTransition
+        this.allowedTransitions = this.allowedTransitions.filter(item => item.Id != rowId);
     }
 
     showToast(title, message, variant, mode) {

@@ -69,16 +69,19 @@ public with sharing class ST_TransitionSettingsController {
     }
 
     @AuraEnabled
-    public static string dmlOnStateTransition(Object data) {
-        List<State_Transition__c> upsertST = (List<State_Transition__c>) JSON.deserialize(JSON.serialize(data), List<State_Transition__c>.class);
+    public static string saveAllowedTransitions(List<State_Transition__c> recordsToUpsert, String[] recordsToDelete) {
         try {
-            if(upsertST != null && !upsertST.isEmpty()){
-                insert upsertST;
+            if(recordsToUpsert != null && !recordsToUpsert.isEmpty()) {
+                upsert recordsToUpsert;
             }
-            return 'Success: State Transition(s) insert successfully';
+            if(recordsToDelete != null && !recordsToDelete.isEmpty()) {
+                delete [SELECT Id FROM State_Transition__c WHERE Id IN: recordsToDelete];
+
+            }
+            return 'Success: State Transition(s) successfully saved.';
         }
         catch (Exception e) {
-            String errorMsg = 'The following exception has occurred: ' + e.getMessage();
+            String errorMsg = 'Exception: ' + e.getMessage();
             throw new AuraHandledException(ErrorMsg);
         }
     }
