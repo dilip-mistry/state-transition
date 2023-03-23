@@ -28,7 +28,6 @@ export default class StTransitionSettings extends LightningElement {
     @wire(getObjects)
     wiredObjectsName({ error, data }) {
         if (data) {
-            console.log('@@@ wiredObjectsName');
             this.listObjects = [];
             for (var key in data) {
                 this.listObjects.push({ label: data[key], value: key });
@@ -70,7 +69,7 @@ export default class StTransitionSettings extends LightningElement {
     handleObjectChange(event) {
         this.selectedObject = event.detail.value;
         this.selectedField = null;
-        console.log('this.selectedObject - ', this.selectedObject);
+        //console.log('this.selectedObject - ', this.selectedObject);
 
         getFields({ objectName: this.selectedObject })
             .then((result) => {
@@ -118,16 +117,7 @@ export default class StTransitionSettings extends LightningElement {
     //to add row
     addRow() {
         var newTransition = { From_State__c: "", To_State__c: "", Id: (++this.keyIndex), Allowed_Profiles__c: "", Object__c: this.selectedObject, Field__c: this.selectedField };
-        console.log('newTransition - ', newTransition);
-
-        console.log("addRow:",
-            JSON.stringify(this.allowedTransitions));
-
         this.allowedTransitions = [...(Array.isArray(this.allowedTransitions) ? this.allowedTransitions : []), newTransition];
-
-        console.log("addRow:",
-            JSON.stringify(this.allowedTransitions));
-
     }
 
     //update table row values in list
@@ -203,21 +193,25 @@ export default class StTransitionSettings extends LightningElement {
     }
 
     handleApplyProfiles() {
-        console.log("handleApplyProfiles:",
-            JSON.stringify(this.selectedProfiles));
 
         var selectedTransitions = [...this.template.querySelectorAll('lightning-input')]
             .filter(element => element.checked)
             .map(element => element.dataset.id);
 
+        /*
+        console.log("handleApplyProfiles:",
+            JSON.stringify(this.selectedProfiles),
+            JSON.stringify(selectedTransitions),
+            JSON.stringify(this.allowedTransitions)); */
+
         this.allowedTransitions = this.allowedTransitions.map(item => {
-            return selectedTransitions.includes(item.Id) ? { ...item, "Allowed_Profiles__c": this.selectedProfiles?.join(", ") } : item;
+            return selectedTransitions.includes(`${item.Id}`) ? { ...item, "Allowed_Profiles__c": this.selectedProfiles?.join(", ") } : item;
         });
     }
 
     //To Remove Row
     removeRow(event) {
-        console.log('remove rows - ', event.target.dataset.id);
+        //console.log('remove rows - ', event.target.dataset.id);
         const rowId = event.target.dataset?.id;
 
         // add the row for deletion

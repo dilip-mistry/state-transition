@@ -14,7 +14,7 @@ export default class StTransitionModel extends LightningElement {
     }
     set validTransition(value) {
         this._validTransition = value;
-        console.log("new transitions received by graph", JSON.stringify(this._validTransition));
+        //console.log("new transitions received by graph", JSON.stringify(this._validTransition));
         this.drawGraph();
     }
 
@@ -32,7 +32,6 @@ export default class StTransitionModel extends LightningElement {
 
     drawGraph() {
         var canvas = this.template.querySelector('canvas');
-        console.log("this._validTransition", JSON.stringify(this._validTransition));
 
         if (this._validTransition) {
             var source = this._validTransition
@@ -41,7 +40,6 @@ export default class StTransitionModel extends LightningElement {
                     return `[${element.From_State__c}] -> [${element.To_State__c}]`;
                 }).join('\n');
 
-            console.log("source", JSON.stringify(source));
             try {
                 nomnoml.draw(canvas, source);
             } catch (err) {

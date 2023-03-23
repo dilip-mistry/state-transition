@@ -110,9 +110,14 @@
 											</lightning-combobox>
 										</td>
 										<td data-label="AllowedProfiles">
-											<div style="word-break: break-word;white-space: normal;">
-												{eachRecord.Allowed_Profiles__c}
-											</div>
+											<template if:true={eachRecord.Allowed_Profiles__c}>
+												<div style="word-break: break-word;white-space: normal;">
+													{eachRecord.Allowed_Profiles__c}
+												</div>
+											</template>
+											<template if:false={eachRecord.Allowed_Profiles__c}>
+												All Profiles Allowed
+											</template>
 										</td>
 										<td data-label="Delete">
 											<lightning-icon icon-name="utility:delete" data-id={eachRecord.Id}
